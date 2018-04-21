@@ -5,14 +5,15 @@
 </head>
 <body>
 	<TMPL_LOOP NAME=IMAGE>
-		<figure>
-			<a href="<TMPL_VAR NAME=IMG_SRC>">
-				<img src="<TMPL_VAR NAME=THUMB_SRC>">
-			</a>
-			<figcaption>
-				<TMPL_VAR NAME=DATETIME>
-			</figcaption>
-		</figure>
+		<figure><a href="<TMPL_VAR NAME=IMG_SRC>">
+			<img
+			width="<TMPL_VAR NAME=THUMB_WIDTH>"
+			height="<TMPL_VAR NAME=THUMB_HEIGHT>"
+			src="<TMPL_VAR NAME=THUMB_SRC>"
+			>
+		</a><figcaption>
+			<TMPL_VAR NAME=DATETIME>
+		</figcaption></figure>
 	</TMPL_LOOP>
 </body>
 </HTML>

@@ -5,14 +5,52 @@ use Image::ExifTool 'ImageInfo';
 use Image::Magick::Thumbnail;
 use File::Find;
 use File::Basename;
+use Cwd 'abs_path';
 use Config::IniFiles;
 
-tie my %cfg, 'Config::IniFiles', (
-	-file => dirname(__FILE__) . "/config.ini"
-);
+# OO interfaces
 my $template;
 my $exif = Image::ExifTool->new;
 my $src = Image::Magick->new;
+
+# A hash that reflects the configuration file
+tie my %cfg, 'Config::IniFiles', (
+	-file => "config.ini"
+);
+
+# Important directories in the source tree
+$cfg{General}{BaseDir} = dirname(abs_path __FILE__). "/";
+$cfg{General}{TemplateDir} = "$cfg{General}{BaseDir}tmpl/";
+$cfg{WWW}{LocalPath} = "$cfg{General}{BaseDir}www/";
+
+# Generated Thumbnails
+$cfg{Thumbs}{LocalPath}= "$cfg{WWW}{LocalPath}thumbs/";
+$cfg{Thumbs}{URL}= "$cfg{WWW}{URL}thumbs/";
+
+
+# %images Stores information relating to your pictures
+# e.g.
+# %images = (
+#	2018-March => [
+#		(
+#		IMG_SRC => 'someurl',
+#		THUMB_SRC => 'someurl',
+#		DATETIME => 'sometime',
+#		),
+#		(
+#		IMG_SRC => 'someurl',
+#		THUMB_SRC => 'someurl',
+#		DATETIME => 'sometime',
+#		),
+#	],
+#	2018-April => [
+#		(
+#		IMG_SRC => 'someurl',
+#		THUMB_SRC => 'someurl',
+#		DATETIME => 'sometime',
+#		),
+#	],
+# );
 my %images;
 
 # Use File::Find to index an image
@@ -25,47 +63,49 @@ sub index_img {
 	$date = substr($datetime, 0, index($datetime, ' '));
 	($year, $month, $day) = split(/:/, $date);
 
-	$outfile = $cfg{WWW}{LocalPath} . "thumbs/$year-$month/$_";
-	if (!-f $outfile) {
-		say "Thumbnailing: $_";
-		mkdir "thumbs/$year-$month/";
-		$src->Read($infile);
-		($thumb, $x, $y) = Image::Magick::Thumbnail::create($src, 500);
-		$thumb->Write($outfile);
-		@$src = ();
-	}
+	$outfile = "$cfg{Thumbs}{LocalPath}$year-$month/$_";
+
+	# Thumbnailing
+	say "Thumbnailing: $_";
+	mkdir "$cfg{Thumbs}{LocalPath}$year-$month";
+	$src->Read($infile);
+	($thumb, $tx, $ty) = Image::Magick::Thumbnail::create(
+		$src, $cfg{General}{MaxThumbSize}
+	);
+	$thumb->Write($outfile);
+	@$src = ();
 
 	my %img_data;
-	$img_data{THUMB_SRC} = $cfg{WWW}{URL} . "thumbs/$year-$month/$_";
+	$img_data{THUMB_SRC} = "$cfg{Thumbs}{URL}$year-$month/$_";
 	$img_data{IMG_SRC} = $cfg{Images}{URL} . substr(
 		$File::Find::name, length($cfg{Images}{LocalPath})
 	);
 	$img_data{DATETIME} = $datetime;
+	$img_data{THUMB_WIDTH} = $tx;
+	$img_data{THUMB_HEIGHT} = $ty;
 	push @{$images{"$year-$month"}}, \%img_data;
 } find \&index_img, $cfg{Images}{LocalPath};
 
 my @months;
 foreach (keys %images) {
-	$month_data{'URL'} = $cfg{WWW}{URL} . $_;
+	$month_data{'URL'} = "$cfg{WWW}{URL}$_";
 	$month_data{'URLTEXT'} = $_;
 	push @months, \%month_data;
 
-	mkdir $cfg{WWW}{LocalPath} . $_;
-	open $fh, ">", $cfg{WWW}{LocalPath} . "$_/index.html";
+	mkdir "$cfg{WWW}{LocalPath}$_";
+	open $fh, ">", "$cfg{WWW}{LocalPath}$_/index.html";
 	$template = HTML::Template->new(
-		filename => dirname(__FILE__) . "/tmpl/month.html"
+		filename => "$cfg{General}{TemplateDir}month.html"
 	);
-#	foreach (@{%images{$_}}) {
-#	}
 	$template->param(IMAGE => $images{$_});
 	$template->output(print_to => $fh);
 	close $fh;
 }
 
 # Creating the Index page
-open $fh, ">", $cfg{WWW}{LocalPath} . "index.html";
+open $fh, ">", "$cfg{WWW}{LocalPath}index.html";
 $template = HTML::Template->new(
-	filename => dirname(__FILE__) . "/tmpl/index.html"
+	filename => "$cfg{General}{TemplateDir}index.html"
 );
 $template->param(MONTH => \@months);
 $template->output(print_to => $fh);

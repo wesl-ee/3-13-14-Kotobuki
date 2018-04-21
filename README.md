@@ -26,17 +26,14 @@ using cpan or any other technique.
 - HTML::Template
 - Image::ExifTool
 - Image::Magick::Thumbnail
-- File::Find
-- File::Basename
 - Config::IniFiles
 
 Installation
 ------------
 
-First, create an empty directory which your web server can access and serve.
-This is where your static HTML pages will go.
+First, host the `www/` directory on your web server.
 
-Next, move your pictures (or if you are fancy, use _symbolic_links_) so they
+Next, move your pictures (or if you are fancy, use _symbolic links_) so they
 are accessible by your webserver. These may be put in a subdirectory of the
 directory you created earlier. Please ensure that you can access your
 pictures on-line by using a web browser.
