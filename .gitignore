@@ -1,0 +1,4 @@
+config.ini
+www/*
+!www/.keep
+!www/thumbs/.keep

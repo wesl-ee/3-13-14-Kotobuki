@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+use feature say;
+use HTML::Template;
+use Image::ExifTool 'ImageInfo';
+use Image::Magick::Thumbnail;
+use File::Find;
+use File::Basename;
+use Config::IniFiles;
+
+tie my %cfg, 'Config::IniFiles', (
+	-file => dirname(__FILE__) . "/config.ini"
+);
+my $template;
+my $exif = Image::ExifTool->new;
+my $src = Image::Magick->new;
+my %images;
+
+# Use File::Find to index an image
+sub index_img {
+	return if !-f;
+
+	$infile = $File::Find::name;
+	$exif->ExtractInfo($infile);
+	$datetime = $exif->GetValue('DateTimeOriginal', 'PrintConv');
+	$date = substr($datetime, 0, index($datetime, ' '));
+	($year, $month, $day) = split(/:/, $date);
+
+	$outfile = $cfg{WWW}{LocalPath} . "thumbs/$year-$month/$_";
+	if (!-f $outfile) {
+		say "Thumbnailing: $_";
+		mkdir "thumbs/$year-$month/";
+		$src->Read($infile);
+		($thumb, $x, $y) = Image::Magick::Thumbnail::create($src, 500);
+		$thumb->Write($outfile);
+		@$src = ();
+	}
+
+	my %img_data;
+	$img_data{THUMB_SRC} = $cfg{WWW}{URL} . "thumbs/$year-$month/$_";
+	$img_data{IMG_SRC} = $cfg{Images}{URL} . substr(
+		$File::Find::name, length($cfg{Images}{LocalPath})
+	);
+	$img_data{DATETIME} = $datetime;
+	push @{$images{"$year-$month"}}, \%img_data;
+} find \&index_img, $cfg{Images}{LocalPath};
+
+my @months;
+foreach (keys %images) {
+	$month_data{'URL'} = $cfg{WWW}{URL} . $_;
+	$month_data{'URLTEXT'} = $_;
+	push @months, \%month_data;
+
+	mkdir $cfg{WWW}{LocalPath} . $_;
+	open $fh, ">", $cfg{WWW}{LocalPath} . "$_/index.html";
+	$template = HTML::Template->new(
+		filename => dirname(__FILE__) . "/tmpl/month.html"
+	);
+#	foreach (@{%images{$_}}) {
+#	}
+	$template->param(IMAGE => $images{$_});
+	$template->output(print_to => $fh);
+	close $fh;
+}
+
+# Creating the Index page
+open $fh, ">", $cfg{WWW}{LocalPath} . "index.html";
+$template = HTML::Template->new(
+	filename => dirname(__FILE__) . "/tmpl/index.html"
+);
+$template->param(MONTH => \@months);
+$template->output(print_to => $fh);
+close $fh;
