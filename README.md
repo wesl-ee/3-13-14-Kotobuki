@@ -16,7 +16,8 @@ There are a few things to get make sure you have before we begin
 - ImageMagick
 
 If you are a gentle and blessed soul using a source-based package manager
-(i.e. portage) please ensure that
+(i.e. portage) please ensure that you have ImageMagick compiled with Perl
+bindings.
 
 ### Perl Modules
 
@@ -40,7 +41,7 @@ pictures on-line by using a web browser.
 
 Then copy `config.example.ini` to `config.ini` and make adjustments as
 necessary. Finally run `gallery-create` to generate your website in the `www`
-folder that you specified.
+folder.
 
 Author
 ------

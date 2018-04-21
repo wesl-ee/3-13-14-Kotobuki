@@ -2,18 +2,23 @@
 <HTML>
 <head>
 	<title>3-13-14寿</title>
+	<link rel=stylesheet
+	href="<TMPL_VAR NAME=ROOT>css/3-13-14.css">
 </head>
-<body>
-	<TMPL_LOOP NAME=IMAGE>
-		<figure><a href="<TMPL_VAR NAME=IMG_SRC>">
+<body><main>
+	<nav>
+		[ <a href="<TMPL_VAR NAME=ROOT>">Home</a> ]
+	</nav>
+	<h1><TMPL_VAR NAME=DATE></h1><hr />
+	<section id=photos><TMPL_LOOP NAME=IMAGE>
+		<a href="<TMPL_VAR NAME=IMG_SRC>">
 			<img
 			width="<TMPL_VAR NAME=THUMB_WIDTH>"
 			height="<TMPL_VAR NAME=THUMB_HEIGHT>"
 			src="<TMPL_VAR NAME=THUMB_SRC>"
+			alt="<TMPL_VAR NAME=DATETIME>"
 			>
-		</a><figcaption>
-			<TMPL_VAR NAME=DATETIME>
-		</figcaption></figure>
-	</TMPL_LOOP>
-</body>
+		</a>
+	</TMPL_LOOP></section>
+</main></body>
 </HTML>

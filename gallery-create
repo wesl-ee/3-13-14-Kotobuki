@@ -13,6 +13,22 @@ my $template;
 my $exif = Image::ExifTool->new;
 my $src = Image::Magick->new;
 
+# Months
+%monthnames = (
+	'01' => "January",
+	'02' => "February",
+	'03' => "March",
+	'04' => "April",
+	'05' => "May",
+	'06' => "June",
+	'07' => "July",
+	'08' => "August",
+	'09' => "September",
+	'10' => "October",
+	'11' => "November",
+	'12' => "December"
+);
+
 # A hash that reflects the configuration file
 tie my %cfg, 'Config::IniFiles', (
 	-file => "config.ini"
@@ -88,8 +104,9 @@ sub index_img {
 
 my @months;
 foreach (keys %images) {
+	($year, $month) = split(/-/, $_);
 	$month_data{'URL'} = "$cfg{WWW}{URL}$_";
-	$month_data{'URLTEXT'} = $_;
+	$month_data{'URLTEXT'} = "$monthnames{$month} $year";
 	push @months, \%month_data;
 
 	mkdir "$cfg{WWW}{LocalPath}$_";
@@ -98,6 +115,9 @@ foreach (keys %images) {
 		filename => "$cfg{General}{TemplateDir}month.html"
 	);
 	$template->param(IMAGE => $images{$_});
+	$template->param(ROOT => $cfg{WWW}{URL});
+	say "$monthnames{$month} $year";
+	$template->param(DATE => "$monthnames{$month} $year");
 	$template->output(print_to => $fh);
 	close $fh;
 }
@@ -108,5 +128,6 @@ $template = HTML::Template->new(
 	filename => "$cfg{General}{TemplateDir}index.html"
 );
 $template->param(MONTH => \@months);
+$template->param(ROOT => $cfg{WWW}{URL});
 $template->output(print_to => $fh);
 close $fh;
