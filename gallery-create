@@ -5,6 +5,8 @@ use Image::ExifTool 'ImageInfo';
 use Image::Magick::Thumbnail;
 use File::Find;
 use File::Basename;
+use File::stat;
+use Date::Format;
 use Cwd 'abs_path';
 use Config::IniFiles;
 
@@ -75,10 +77,18 @@ sub index_img {
 
 	$infile = $File::Find::name;
 	$exif->ExtractInfo($infile);
-	$datetime = $exif->GetValue('DateTimeOriginal', 'PrintConv');
-	$date = substr($datetime, 0, index($datetime, ' '));
+	# Interpret EXIF date metadata
+	if ($exif->GetValue('DateTimeOriginal', 'PrintConv')) {
+		$datestr = $exif->GetValue('DateTimeOriginal', 'PrintConv');
+	} else {
+		# Guess by the file mtime
+		say "$File::Find::name lacks the DateTimeOriginal EXIF data";
+		$mtime = stat($infile)->mtime;
+		$datestr = time2str("%Y:%m:%d %H:%M:%S", $mtime);
+	}
+	# Break this timestamp into the year, month, and day
+	$date = substr($datestr, 0, index($datestr, ' '));
 	($year, $month, $day) = split(/:/, $date);
-
 	$outfile = "$cfg{Thumbs}{LocalPath}$year-$month/$_";
 
 	# Thumbnailing
@@ -96,19 +106,27 @@ sub index_img {
 	$img_data{IMG_SRC} = $cfg{Images}{URL} . substr(
 		$File::Find::name, length($cfg{Images}{LocalPath})
 	);
-	$img_data{DATETIME} = $date;
-	$img_data{DATE} = "$monthnames{$month} $day";
+	$img_data{ALT_TEXT} = "$monthnames{$month} $day";
+	$img_data{FIG_CAPTION} = "$monthnames{$month} $day";
 	$img_data{THUMB_WIDTH} = $tx;
 	$img_data{THUMB_HEIGHT} = $ty;
 	push @{$images{"$year-$month"}}, \%img_data;
 } find \&index_img, $cfg{Images}{LocalPath};
 
 my @months;
-foreach (keys %images) {
+# Creating pages for each month
+foreach (sort keys %images) {
+	my %month_data;
 	($year, $month) = split(/-/, $_);
 	$month_data{URL} = "$cfg{WWW}{URL}$_";
 	$month_data{MONTH} = "$monthnames{$month} $year";
-	$month_data{NO} = @{$images{$_}};
+	$month_data{ALT_TEXT} = "$monthnames{$month} $year";
+	$month_data{PCOUNTMSG} = @{$images{$_}};
+	if ($month_data{PCOUNTMSG} > 1) {
+		$month_data{PCOUNTMSG} .= " Photos" }
+	else {
+		$month_data{PCOUNTMSG} .= " Photo"
+	}
 	$sample = @{$images{$_}}[0];
 	$month_data{COVER_SRC} = $sample->{THUMB_SRC};
 	$month_data{COVER_WIDTH} = $sample->{THUMB_WIDTH};
@@ -122,8 +140,8 @@ foreach (keys %images) {
 	);
 	$template->param(IMAGE => $images{$_});
 	$template->param(ROOT => $cfg{WWW}{URL});
-	say "$monthnames{$month} $year";
 	$template->param(DATE => "$monthnames{$month} $year");
+	$template->param(PAGETITLE => "$monthnames{$month} $year");
 	$template->output(print_to => $fh);
 	close $fh;
 }

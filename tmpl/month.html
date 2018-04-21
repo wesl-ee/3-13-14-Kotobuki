@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <HTML>
 <head>
-	<title>3-13-14寿</title>
+	<title><TMPL_VAR NAME=PAGETITLE> - 3-13-14寿</title>
 	<link rel=stylesheet
 	href="<TMPL_VAR NAME=ROOT>css/3-13-14.css">
 </head>
@@ -19,10 +19,11 @@
 			width="<TMPL_VAR NAME=THUMB_WIDTH>"
 			height="<TMPL_VAR NAME=THUMB_HEIGHT>"
 			src="<TMPL_VAR NAME=THUMB_SRC>"
-			alt="<TMPL_VAR NAME=DATETIME>">
+			alt="<TMPL_VAR NAME=ALT_TEXT>">
 		</a><figurecaption>
-			<TMPL_VAR NAME=DATE>
+			<TMPL_VAR NAME=FIG_CAPTION>
 		</figurecaption></figure>
 	</TMPL_LOOP></section>
+	<hr /><footer><TMPL_INCLUDE NAME="footer.html"></footer>
 </main></body>
 </HTML>

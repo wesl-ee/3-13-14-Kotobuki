@@ -8,21 +8,26 @@
 <body><main>
 	<header>
 		<h1>3-13-14寿</h1>
+		<blockquote>
+			<TMPL_INCLUDE NAME="foreword.html">
+		</blockquote>
 	</header><hr />
 	<section id=photos><TMPL_LOOP NAME=MONTH>
 		<figure>
-			<a href="<TMPL_VAR NAME=URL>">
+			<a href="<TMPL_VAR NAME=URL>"
+			title="<TMPL_VAR NAME+ALT_TEXT>">
 			<img
 			width="<TMPL_VAR NAME=COVER_WIDTH>"
 			height="<TMPL_VAR NAME=COVER_HEIGHT>"
 			src="<TMPL_VAR NAME=COVER_SRC>"
-			alt="<TMPL_VAR NAME=MONTH>">
+			alt="<TMPL_VAR NAME=ALT_TEXT>">
 			</a>
 			<figcaption>
 				<TMPL_VAR NAME=MONTH><br />
-				<TMPL_VAR NAME=NO> Photos
+				<TMPL_VAR NAME=PCOUNTMSG>
 			</figcaption>
 		</figure>
 	</TMPL_LOOP></section>
+	<hr /><footer><TMPL_INCLUDE NAME="footer.html"></footer>
 </main></body>
 </HTML>

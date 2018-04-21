@@ -27,6 +27,7 @@ using cpan or any other technique.
 - HTML::Template
 - Image::ExifTool
 - Image::Magick::Thumbnail
+- Date::Format
 - Config::IniFiles
 
 Installation
