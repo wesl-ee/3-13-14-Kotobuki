@@ -9,16 +9,20 @@
 	<nav>
 		[ <a href="<TMPL_VAR NAME=ROOT>">Home</a> ]
 	</nav>
-	<h1><TMPL_VAR NAME=DATE></h1><hr />
+	<header>
+		<h1><TMPL_VAR NAME=DATE></h1>
+	</header><hr />
 	<section id=photos><TMPL_LOOP NAME=IMAGE>
+		<figure>
 		<a href="<TMPL_VAR NAME=IMG_SRC>">
 			<img
 			width="<TMPL_VAR NAME=THUMB_WIDTH>"
 			height="<TMPL_VAR NAME=THUMB_HEIGHT>"
 			src="<TMPL_VAR NAME=THUMB_SRC>"
-			alt="<TMPL_VAR NAME=DATETIME>"
-			>
-		</a>
+			alt="<TMPL_VAR NAME=DATETIME>">
+		</a><figurecaption>
+			<TMPL_VAR NAME=DATE>
+		</figurecaption></figure>
 	</TMPL_LOOP></section>
 </main></body>
 </HTML>

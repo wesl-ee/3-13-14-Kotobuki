@@ -6,10 +6,23 @@
 	href="<TMPL_VAR NAME=ROOT>css/3-13-14.css">
 </head>
 <body><main>
-	<TMPL_LOOP NAME=MONTH>
-		<a href="<TMPL_VAR NAME=URL>">
-			<TMPL_VAR NAME=URLTEXT>
-		</a>
-	</TMPL_LOOP>
+	<header>
+		<h1>3-13-14寿</h1>
+	</header><hr />
+	<section id=photos><TMPL_LOOP NAME=MONTH>
+		<figure>
+			<a href="<TMPL_VAR NAME=URL>">
+			<img
+			width="<TMPL_VAR NAME=COVER_WIDTH>"
+			height="<TMPL_VAR NAME=COVER_HEIGHT>"
+			src="<TMPL_VAR NAME=COVER_SRC>"
+			alt="<TMPL_VAR NAME=MONTH>">
+			</a>
+			<figcaption>
+				<TMPL_VAR NAME=MONTH><br />
+				<TMPL_VAR NAME=NO> Photos
+			</figcaption>
+		</figure>
+	</TMPL_LOOP></section>
 </main></body>
 </HTML>

@@ -96,7 +96,8 @@ sub index_img {
 	$img_data{IMG_SRC} = $cfg{Images}{URL} . substr(
 		$File::Find::name, length($cfg{Images}{LocalPath})
 	);
-	$img_data{DATETIME} = $datetime;
+	$img_data{DATETIME} = $date;
+	$img_data{DATE} = "$monthnames{$month} $day";
 	$img_data{THUMB_WIDTH} = $tx;
 	$img_data{THUMB_HEIGHT} = $ty;
 	push @{$images{"$year-$month"}}, \%img_data;
@@ -105,8 +106,13 @@ sub index_img {
 my @months;
 foreach (keys %images) {
 	($year, $month) = split(/-/, $_);
-	$month_data{'URL'} = "$cfg{WWW}{URL}$_";
-	$month_data{'URLTEXT'} = "$monthnames{$month} $year";
+	$month_data{URL} = "$cfg{WWW}{URL}$_";
+	$month_data{MONTH} = "$monthnames{$month} $year";
+	$month_data{NO} = @{$images{$_}};
+	$sample = @{$images{$_}}[0];
+	$month_data{COVER_SRC} = $sample->{THUMB_SRC};
+	$month_data{COVER_WIDTH} = $sample->{THUMB_WIDTH};
+	$month_data{COVER_HEIGHT} = $sample->{THUMB_HEIGHT};
 	push @months, \%month_data;
 
 	mkdir "$cfg{WWW}{LocalPath}$_";
